@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastianrink/zotero-metasync.git"
+    "url": "git+https://github.com/sebastian-rink/zotero-metasync.git"
   },
   "author": "Sebastian Rink",
   "bugs": {
-    "url": "https://github.com/sebastianrink/zotero-metasync/issues"
+    "url": "https://github.com/sebastian-rink/zotero-metasync/issues"
   },
-  "homepage": "https://github.com/sebastianrink/zotero-metasync#readme",
+  "homepage": "https://github.com/sebastian-rink/zotero-metasync#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",
