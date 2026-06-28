@@ -6,6 +6,15 @@
 menu-sync = Sync metadata with MetaSync
 menu-unsupported = This item type is not supported by MetaSync.
 
+# Web search (submenu)
+menu-websearch = Search the web
+websearch-google = Google
+websearch-scholar = Google Scholar
+websearch-dnb = DNB (German National Library)
+websearch-worldcat = WorldCat
+websearch-no-title = No searchable item with a title is selected.
+websearch-failed = Could not open the web search.
+
 # Field labels (preview / candidate dialog)
 field-title = Title
 field-shortTitle = Short title

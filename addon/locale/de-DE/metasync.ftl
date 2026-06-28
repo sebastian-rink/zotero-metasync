@@ -6,6 +6,15 @@
 menu-sync = Metadaten mit MetaSync abgleichen
 menu-unsupported = Dieser Eintragstyp wird von MetaSync nicht unterstützt.
 
+# Web-Suche (Untermenü)
+menu-websearch = Im Web suchen
+websearch-google = Google
+websearch-scholar = Google Scholar
+websearch-dnb = DNB (Deutsche Nationalbibliothek)
+websearch-worldcat = WorldCat
+websearch-no-title = Kein durchsuchbarer Eintrag mit Titel ausgewählt.
+websearch-failed = Die Web-Suche konnte nicht geöffnet werden.
+
 # Feldbezeichnungen (Vorschau-/Trefferauswahl-Dialog)
 field-title = Titel
 field-shortTitle = Kurztitel

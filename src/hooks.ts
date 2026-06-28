@@ -1,6 +1,12 @@
 import { getString, initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { isSupportedItem, syncSelectedItems } from "./modules/metaSync";
+import {
+  isSearchableItem,
+  searchSelectedItemInBrowser,
+  WEB_SEARCH_ENGINES,
+  type WebSearchEngineId,
+} from "./modules/webSearch";
 
 /** popupshowing-Listener je Hauptfenster, für sauberes Cleanup. */
 const itemMenuListeners = new Map<Window, () => void>();
@@ -48,22 +54,51 @@ function registerItemMenu(win: _ZoteroTypes.MainWindow): void {
     icon: menuIcon,
   });
 
+  // Untermenü „Im Web suchen": öffnet je Suchmaschine eine vorbefüllte Suche.
+  ztoolkit.Menu.register("item", {
+    tag: "menu",
+    id: "metasync-itemmenu-websearch",
+    label: getString("menu-websearch"),
+    icon: menuIcon,
+    children: WEB_SEARCH_ENGINES.map((engine) => ({
+      tag: "menuitem",
+      id: `metasync-itemmenu-websearch-${engine.id}`,
+      label: getString(engine.labelKey),
+      commandListener: () => addon.hooks.onWebSearchRun(engine.id),
+    })),
+  });
+
   const itemMenu = win.document.getElementById("zotero-itemmenu");
   if (!itemMenu) return;
 
   const listener = () => {
+    const items = ztoolkit.getGlobal("ZoteroPane").getSelectedItems();
+
     const menuitem = win.document.getElementById(
       "metasync-itemmenu-sync",
     ) as XUL.MenuItem | null;
-    if (!menuitem) return;
-    const items = ztoolkit.getGlobal("ZoteroPane").getSelectedItems();
-    const anySupported = items.some((item) => isSupportedItem(item));
-    if (anySupported) {
-      menuitem.removeAttribute("disabled");
-      menuitem.removeAttribute("tooltiptext");
-    } else {
-      menuitem.setAttribute("disabled", "true");
-      menuitem.setAttribute("tooltiptext", getString("menu-unsupported"));
+    if (menuitem) {
+      const anySupported = items.some((item) => isSupportedItem(item));
+      if (anySupported) {
+        menuitem.removeAttribute("disabled");
+        menuitem.removeAttribute("tooltiptext");
+      } else {
+        menuitem.setAttribute("disabled", "true");
+        menuitem.setAttribute("tooltiptext", getString("menu-unsupported"));
+      }
+    }
+
+    // Web-Suche ist für jeden betitelten Eintrag sinnvoll (breiter als Sync).
+    const websearch = win.document.getElementById(
+      "metasync-itemmenu-websearch",
+    ) as XUL.Menu | null;
+    if (websearch) {
+      const anySearchable = items.some((item) => isSearchableItem(item));
+      if (anySearchable) {
+        websearch.removeAttribute("disabled");
+      } else {
+        websearch.setAttribute("disabled", "true");
+      }
     }
   };
   itemMenu.addEventListener("popupshowing", listener);
@@ -104,10 +139,16 @@ async function onMetaSyncRun(): Promise<void> {
   await syncSelectedItems();
 }
 
+/** Dispatcher für die Web-Suche (Untermenü „Im Web suchen"). */
+function onWebSearchRun(engineId: WebSearchEngineId): void {
+  searchSelectedItemInBrowser(engineId);
+}
+
 export default {
   onStartup,
   onShutdown,
   onMainWindowLoad,
   onMainWindowUnload,
   onMetaSyncRun,
+  onWebSearchRun,
 };

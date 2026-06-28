@@ -43,6 +43,7 @@ export type FluentMessageId =
   | 'item-section-example2-sidenav-tooltip'
   | 'menu-sync'
   | 'menu-unsupported'
+  | 'menu-websearch'
   | 'menuitem-filemenulabel'
   | 'menuitem-label'
   | 'menuitem-submenulabel'
@@ -84,4 +85,10 @@ export type FluentMessageId =
   | 'startup-begin'
   | 'startup-finish'
   | 'tabpanel-lib-tab-label'
-  | 'tabpanel-reader-tab-label';
+  | 'tabpanel-reader-tab-label'
+  | 'websearch-dnb'
+  | 'websearch-failed'
+  | 'websearch-google'
+  | 'websearch-no-title'
+  | 'websearch-scholar'
+  | 'websearch-worldcat';
