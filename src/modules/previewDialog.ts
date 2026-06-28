@@ -106,7 +106,9 @@ export function openPreviewDialog(input: PreviewInput): Promise<PreviewAction> {
     sourceLabel: getString("preview-source"),
     sourceName: input.sourceName,
     qualityLabel: getString("preview-quality"),
-    qualityText: getString(`preview-quality-${input.quality}` as FluentMessageId),
+    qualityText: getString(
+      `preview-quality-${input.quality}` as FluentMessageId,
+    ),
     quality: input.quality,
     warningText: getString("preview-warning-lowmatch"),
     warningShow: input.lowMatch,

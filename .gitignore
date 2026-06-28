@@ -1,6 +1,9 @@
 # dot files
 .DS_Store
 
+# Claude Code (lokale Konfiguration)
+.claude
+
 # Node.js
 node_modules
 pnpm-lock.yaml

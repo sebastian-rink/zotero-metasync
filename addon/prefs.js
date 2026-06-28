@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // MetaSync-Preferences. Der Präfix extensions.zotero.metasync wird vom
 // Scaffold automatisch vorangestellt (siehe package.json > config.prefsPrefix).
 

@@ -99,8 +99,10 @@ export function openCandidateDialog(
     })),
   };
 
-  const io: { input: typeof dialogInput; result?: { action: string; index: number } } =
-    { input: dialogInput };
+  const io: {
+    input: typeof dialogInput;
+    result?: { action: string; index: number };
+  } = { input: dialogInput };
 
   const url = `chrome://${addon.data.config.addonRef}/content/candidateDialog.xhtml`;
   Zotero.getMainWindow().openDialog(

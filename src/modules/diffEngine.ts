@@ -116,7 +116,10 @@ function currentCreatorsOfType(
 // ---------------------------------------------------------------------------
 
 /** Vergleicht ein Textfeld; gibt `null` zurück, wenn identisch. */
-function diffTextField(item: Zotero.Item, field: MappedField): DiffResult | null {
+function diffTextField(
+  item: Zotero.Item,
+  field: MappedField,
+): DiffResult | null {
   const proposed = normalize(field.value);
   if (!proposed) return null;
 

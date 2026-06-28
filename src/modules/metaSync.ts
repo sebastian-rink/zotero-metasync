@@ -22,10 +22,7 @@ import {
 } from "./apiClient";
 import { mapMetadata, type SupportedItemType } from "./fieldMapper";
 import { computeDiff, type DiffResult } from "./diffEngine";
-import {
-  openCandidateDialog,
-  type Candidate,
-} from "./candidateDialog";
+import { openCandidateDialog, type Candidate } from "./candidateDialog";
 import {
   openPreviewDialog,
   type PreviewInput,
@@ -79,7 +76,7 @@ function field(item: Zotero.Item, name: string): string {
 function firstAuthorLastName(item: Zotero.Item): string {
   const creators = item.getCreators();
   const first = creators[0];
-  return first ? first.lastName?.trim() ?? "" : "";
+  return first ? (first.lastName?.trim() ?? "") : "";
 }
 
 // ---------------------------------------------------------------------------
@@ -181,7 +178,10 @@ async function lookupBook(item: Zotero.Item): Promise<RawMetadata[]> {
 
   // Kein DOI/ISBN bzw. keine Treffer → DNB nach Titel + Autor.
   if (results.length === 0 && sourceEnabled("dnb")) {
-    const r = await fetchFromDNB(field(item, "title"), firstAuthorLastName(item));
+    const r = await fetchFromDNB(
+      field(item, "title"),
+      firstAuthorLastName(item),
+    );
     if (r) results.push(r);
   }
 
@@ -217,7 +217,10 @@ async function lookupBookSection(item: Zotero.Item): Promise<RawMetadata[]> {
   }
 
   if (results.length === 0 && sourceEnabled("dnb")) {
-    const r = await fetchFromDNB(field(item, "title"), firstAuthorLastName(item));
+    const r = await fetchFromDNB(
+      field(item, "title"),
+      firstAuthorLastName(item),
+    );
     if (r) results.push(r);
   }
 
@@ -254,7 +257,10 @@ function toCandidates(
   return results
     .map((metadata) => ({
       metadata,
-      score: titleSimilarity(searchTitle, metadata.matchTitle ?? metadata.title ?? ""),
+      score: titleSimilarity(
+        searchTitle,
+        metadata.matchTitle ?? metadata.title ?? "",
+      ),
       sourceName: SOURCE_NAMES[metadata.source],
     }))
     .sort((a, b) => b.score - a.score)
@@ -467,7 +473,10 @@ function toPreviewInput(
 }
 
 /** Zeigt eine kurze Statusmeldung im ProgressWindow. */
-function notify(messageKey: Parameters<typeof getString>[0], args?: Record<string, unknown>): void {
+function notify(
+  messageKey: Parameters<typeof getString>[0],
+  args?: Record<string, unknown>,
+): void {
   new ztoolkit.ProgressWindow(addon.data.config.addonName)
     .createLine({
       text: args ? getString(messageKey, { args }) : getString(messageKey),

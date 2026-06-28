@@ -144,7 +144,9 @@ async function httpGet(
     }
     return xhr.responseText;
   } catch (error) {
-    Zotero.debug(`[MetaSync] Anfrage fehlgeschlagen (${url}): ${String(error)}`);
+    Zotero.debug(
+      `[MetaSync] Anfrage fehlgeschlagen (${url}): ${String(error)}`,
+    );
     return null;
   }
 }
@@ -225,7 +227,9 @@ interface CrossrefResponse {
 }
 
 /** Wandelt Crossrefs `date-parts` in einen Datumsstring (YYYY[-MM[-DD]]) um. */
-function crossrefDate(...candidates: (CrossrefDate | undefined)[]): string | undefined {
+function crossrefDate(
+  ...candidates: (CrossrefDate | undefined)[]
+): string | undefined {
   for (const candidate of candidates) {
     const parts = candidate?.["date-parts"]?.[0];
     if (parts && parts.length > 0 && typeof parts[0] === "number") {
@@ -258,7 +262,9 @@ function crossrefCreators(
  * @param doi DOI des Werks (ohne URL-Präfix).
  * @returns Metadaten oder `null`, falls kein Treffer/Fehler.
  */
-export async function fetchFromCrossref(doi: string): Promise<RawMetadata | null> {
+export async function fetchFromCrossref(
+  doi: string,
+): Promise<RawMetadata | null> {
   const trimmed = clean(doi);
   if (!trimmed) return null;
 
@@ -359,7 +365,9 @@ type OpenLibraryResponse = Record<string, OpenLibraryBook | undefined>;
  * @param isbn ISBN-10 oder ISBN-13 (mit/ohne Bindestriche).
  * @returns Metadaten oder `null`, falls kein Treffer/Fehler.
  */
-export async function fetchFromOpenLibrary(isbn: string): Promise<RawMetadata | null> {
+export async function fetchFromOpenLibrary(
+  isbn: string,
+): Promise<RawMetadata | null> {
   const normalized = clean(isbn)?.replace(/[-\s]/g, "");
   if (!normalized) return null;
 
@@ -395,7 +403,10 @@ export async function fetchFromOpenLibrary(isbn: string): Promise<RawMetadata | 
       typeof book.number_of_pages === "number"
         ? String(book.number_of_pages)
         : undefined,
-    ISBN: clean(first(book.identifiers?.isbn_13) ?? first(book.identifiers?.isbn_10)) ?? normalized,
+    ISBN:
+      clean(
+        first(book.identifiers?.isbn_13) ?? first(book.identifiers?.isbn_10),
+      ) ?? normalized,
     ISSN: clean(first(book.identifiers?.issn)),
     abstractNote: clean(book.notes ?? first(book.excerpts)?.text),
     url: clean(book.url),
@@ -440,7 +451,9 @@ interface GoogleBooksResponse {
 }
 
 /** Liest die ISBN-13 (ersatzweise ISBN-10) aus den Industrie-Identifikatoren. */
-function googleIsbn(ids: GoogleIndustryIdentifier[] | undefined): string | undefined {
+function googleIsbn(
+  ids: GoogleIndustryIdentifier[] | undefined,
+): string | undefined {
   const isbn13 = ids?.find((i) => i.type === "ISBN_13")?.identifier;
   const isbn10 = ids?.find((i) => i.type === "ISBN_10")?.identifier;
   return clean(isbn13 ?? isbn10);
@@ -460,7 +473,9 @@ export async function fetchFromGoogleBooks(
   const normalized = clean(isbn)?.replace(/[-\s]/g, "");
   if (!normalized) return null;
 
-  const keyParam = clean(apiKey) ? `&key=${encodeURIComponent(clean(apiKey)!)}` : "";
+  const keyParam = clean(apiKey)
+    ? `&key=${encodeURIComponent(clean(apiKey)!)}`
+    : "";
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(normalized)}${keyParam}`;
   const text = await httpGet(url);
   if (!text) return null;
@@ -487,7 +502,8 @@ export async function fetchFromGoogleBooks(
     creators: creators.length > 0 ? creators : undefined,
     date: clean(info.publishedDate),
     publisher: clean(info.publisher),
-    numPages: typeof info.pageCount === "number" ? String(info.pageCount) : undefined,
+    numPages:
+      typeof info.pageCount === "number" ? String(info.pageCount) : undefined,
     ISBN: googleIsbn(info.industryIdentifiers) ?? normalized,
     language: clean(info.language),
     abstractNote: clean(info.description),
@@ -545,7 +561,10 @@ function marcSub(field: Element | undefined, code: string): string | undefined {
 }
 
 /** Wandelt einen MARC-Personennamen "Nachname, Vorname" in {@link RawCreator}. */
-function marcCreator(raw: string | undefined, role: CreatorRole): RawCreator | null {
+function marcCreator(
+  raw: string | undefined,
+  role: CreatorRole,
+): RawCreator | null {
   const name = clean(raw);
   if (!name) return null;
   const commaIndex = name.indexOf(",");
@@ -560,13 +579,19 @@ function marcCreator(raw: string | undefined, role: CreatorRole): RawCreator | n
 }
 
 /** Liefert die Texte aller Subfelder mit den genannten Codes in Dokumentreihenfolge. */
-function marcSubsInOrder(field: Element | undefined, codes: string[]): string[] {
+function marcSubsInOrder(
+  field: Element | undefined,
+  codes: string[],
+): string[] {
   if (!field) return [];
   const result: string[] = [];
   const subs = field.getElementsByTagName("*");
   for (let i = 0; i < subs.length; i++) {
     const el = subs[i];
-    if (el.localName === "subfield" && codes.includes(el.getAttribute("code") ?? "")) {
+    if (
+      el.localName === "subfield" &&
+      codes.includes(el.getAttribute("code") ?? "")
+    ) {
       const text = clean(el.textContent);
       if (text) result.push(text);
     }
@@ -579,7 +604,10 @@ function marcSubsInOrder(field: Element | undefined, codes: string[]): string[] 
  * (z. B. aus der Verantwortlichkeitsangabe 245 $c). Das letzte Wort gilt als
  * Nachname, der Rest als Vorname.
  */
-function nameFirstLast(raw: string | undefined, role: CreatorRole): RawCreator | null {
+function nameFirstLast(
+  raw: string | undefined,
+  role: CreatorRole,
+): RawCreator | null {
   const name = clean(raw);
   if (!name) return null;
   const parts = name.split(/\s+/);
@@ -601,7 +629,10 @@ function mapMarcRecord(record: Element): RawMetadata | null {
   if (!title) return null;
 
   const creators: RawCreator[] = [];
-  const main = marcCreator(marcSub(first(marcFields(record, "100")), "a"), "author");
+  const main = marcCreator(
+    marcSub(first(marcFields(record, "100")), "a"),
+    "author",
+  );
   if (main) creators.push(main);
   for (const f of marcFields(record, "700")) {
     // $4 enthält ggf. die Relator-Rolle (z. B. "edt" für Herausgeber).
@@ -625,7 +656,9 @@ function mapMarcRecord(record: Element): RawMetadata | null {
     );
     if (match) {
       const namePart = match[1]
-        .split(/\s+(?:in\s+verbindung|unter\s+mitarb|unter\s+mitarbeit|und|u\.|mit)\b/i)[0]
+        .split(
+          /\s+(?:in\s+verbindung|unter\s+mitarb|unter\s+mitarbeit|und|u\.|mit)\b/i,
+        )[0]
         .split(/[,;]/)[0]
         .trim();
       const editor = nameFirstLast(namePart, "editor");
@@ -634,8 +667,10 @@ function mapMarcRecord(record: Element): RawMetadata | null {
   }
 
   // 264 (RDA) bevorzugt, 260 (AACR2) als Rückfall.
-  const pub = first(marcFields(record, "264")) ?? first(marcFields(record, "260"));
-  const seriesField = first(marcFields(record, "490")) ?? first(marcFields(record, "830"));
+  const pub =
+    first(marcFields(record, "264")) ?? first(marcFields(record, "260"));
+  const seriesField =
+    first(marcFields(record, "490")) ?? first(marcFields(record, "830"));
 
   return {
     source: "dnb",
@@ -648,7 +683,10 @@ function mapMarcRecord(record: Element): RawMetadata | null {
     place: first(marcSubsInOrder(pub, ["a"]))?.replace(/\s*[,:]\s*$/, ""),
     edition: marcSub(first(marcFields(record, "250")), "a"),
     numPages: marcSub(first(marcFields(record, "300")), "a"),
-    ISBN: marcSub(first(marcFields(record, "020")), "a")?.replace(/[^0-9Xx].*$/, ""),
+    ISBN: marcSub(first(marcFields(record, "020")), "a")?.replace(
+      /[^0-9Xx].*$/,
+      "",
+    ),
     ISSN: marcSub(first(marcFields(record, "022")), "a"),
     series: marcSub(seriesField, "a")?.replace(/\s*[;,]\s*$/, ""),
     seriesNumber: marcSub(seriesField, "v"),
@@ -675,7 +713,9 @@ async function dnbSearch(cql: string): Promise<RawMetadata | null> {
   try {
     doc = new DOMParser().parseFromString(text, "application/xml");
   } catch (error) {
-    Zotero.debug(`[MetaSync] DNB: XML-Parsing fehlgeschlagen: ${String(error)}`);
+    Zotero.debug(
+      `[MetaSync] DNB: XML-Parsing fehlgeschlagen: ${String(error)}`,
+    );
     return null;
   }
 
@@ -723,7 +763,9 @@ export async function fetchFromDNB(
  * @param isbn ISBN-10 oder ISBN-13 (mit/ohne Bindestriche).
  * @returns Metadaten des Treffers oder `null`.
  */
-export async function fetchFromDNBByISBN(isbn: string): Promise<RawMetadata | null> {
+export async function fetchFromDNBByISBN(
+  isbn: string,
+): Promise<RawMetadata | null> {
   const normalized = clean(isbn)?.replace(/[-\s]/g, "");
   if (!normalized) return null;
   return dnbSearch(`NUM=${normalized}`);
@@ -785,7 +827,8 @@ export async function fetchFromSemanticScholar(
   const t = clean(title);
   if (!t) return null;
 
-  const fields = "title,authors,year,journal,volume,issue,pages,doi,externalIds";
+  const fields =
+    "title,authors,year,journal,volume,issue,pages,doi,externalIds";
   const url =
     "https://api.semanticscholar.org/graph/v1/paper/search" +
     `?query=${encodeURIComponent(t)}&fields=${encodeURIComponent(fields)}&limit=5`;
@@ -815,9 +858,10 @@ export async function fetchFromSemanticScholar(
     pages: clean(paper.journal?.pages),
     DOI: clean(paper.doi ?? paper.externalIds?.DOI),
     ISSN: clean(paper.externalIds?.ISSN),
-    url: paper.doi || paper.externalIds?.DOI
-      ? `https://doi.org/${paper.doi ?? paper.externalIds?.DOI}`
-      : undefined,
+    url:
+      paper.doi || paper.externalIds?.DOI
+        ? `https://doi.org/${paper.doi ?? paper.externalIds?.DOI}`
+        : undefined,
     matchTitle: paperTitle,
   };
 }

@@ -101,7 +101,8 @@ function combinedTitle(raw: RawMetadata): string | undefined {
  */
 function bestUrl(raw: RawMetadata): string | undefined {
   const doi = raw.DOI?.trim();
-  if (doi) return `https://doi.org/${doi.replace(/^https?:\/\/doi\.org\//i, "")}`;
+  if (doi)
+    return `https://doi.org/${doi.replace(/^https?:\/\/doi\.org\//i, "")}`;
   const url = raw.url?.trim();
   if (!url) return undefined;
   if (/openlibrary\.org|books\.google\.|google\.[a-z.]+\/books/i.test(url)) {
@@ -174,10 +175,22 @@ export function mapBook(raw: RawMetadata): MappedField[] {
   pushText(out, "ISBN", "ISBN", "field-ISBN", raw.ISBN);
   pushText(out, "numPages", "numPages", "field-numPages", raw.numPages);
   pushText(out, "series", "series", "field-series", raw.series);
-  pushText(out, "seriesNumber", "seriesNumber", "field-seriesNumber", raw.seriesNumber);
+  pushText(
+    out,
+    "seriesNumber",
+    "seriesNumber",
+    "field-seriesNumber",
+    raw.seriesNumber,
+  );
   pushText(out, "edition", "edition", "field-edition", raw.edition);
   pushText(out, "language", "language", "field-language", raw.language);
-  pushText(out, "abstractNote", "abstractNote", "field-abstractNote", raw.abstractNote);
+  pushText(
+    out,
+    "abstractNote",
+    "abstractNote",
+    "field-abstractNote",
+    raw.abstractNote,
+  );
   pushText(out, "url", "url", "field-url", bestUrl(raw));
   return out;
 }
@@ -197,14 +210,26 @@ export function mapJournalArticle(raw: RawMetadata): MappedField[] {
   pushText(out, "title", "title", "field-title", combinedTitle(raw));
   pushCreators(out, raw, "author", "field-author");
   pushText(out, "date", "date", "field-date", raw.date);
-  pushText(out, "publicationTitle", "publicationTitle", "field-publicationTitle", raw.publicationTitle);
+  pushText(
+    out,
+    "publicationTitle",
+    "publicationTitle",
+    "field-publicationTitle",
+    raw.publicationTitle,
+  );
   pushText(out, "volume", "volume", "field-volume", raw.volume);
   pushText(out, "issue", "issue", "field-issue", raw.issue);
   pushText(out, "pages", "pages", "field-pages", raw.pages);
   pushText(out, "DOI", "DOI", "field-DOI", raw.DOI);
   pushText(out, "ISSN", "ISSN", "field-ISSN", raw.ISSN);
   pushText(out, "language", "language", "field-language", raw.language);
-  pushText(out, "abstractNote", "abstractNote", "field-abstractNote", raw.abstractNote);
+  pushText(
+    out,
+    "abstractNote",
+    "abstractNote",
+    "field-abstractNote",
+    raw.abstractNote,
+  );
   pushText(out, "url", "url", "field-url", bestUrl(raw));
   return out;
 }
@@ -225,7 +250,13 @@ export function mapBookSection(raw: RawMetadata): MappedField[] {
   pushText(out, "title", "title", "field-title", combinedTitle(raw));
   pushCreators(out, raw, "author", "field-author");
   // Crossref liefert den Sammelband-Titel als container-title (bookTitle).
-  pushText(out, "bookTitle", "bookTitle", "field-bookTitle", raw.bookTitle ?? raw.publicationTitle);
+  pushText(
+    out,
+    "bookTitle",
+    "bookTitle",
+    "field-bookTitle",
+    raw.bookTitle ?? raw.publicationTitle,
+  );
   pushCreators(out, raw, "editor", "field-editor");
   pushCreators(out, raw, "seriesEditor", "field-seriesEditor");
   pushText(out, "date", "date", "field-date", raw.date);
@@ -234,9 +265,21 @@ export function mapBookSection(raw: RawMetadata): MappedField[] {
   pushText(out, "pages", "pages", "field-pages", raw.pages);
   pushText(out, "ISBN", "ISBN", "field-ISBN", raw.ISBN);
   pushText(out, "series", "series", "field-series", raw.series);
-  pushText(out, "seriesNumber", "seriesNumber", "field-seriesNumber", raw.seriesNumber);
+  pushText(
+    out,
+    "seriesNumber",
+    "seriesNumber",
+    "field-seriesNumber",
+    raw.seriesNumber,
+  );
   pushText(out, "language", "language", "field-language", raw.language);
-  pushText(out, "abstractNote", "abstractNote", "field-abstractNote", raw.abstractNote);
+  pushText(
+    out,
+    "abstractNote",
+    "abstractNote",
+    "field-abstractNote",
+    raw.abstractNote,
+  );
   pushText(out, "url", "url", "field-url", bestUrl(raw));
   return out;
 }

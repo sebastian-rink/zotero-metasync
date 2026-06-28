@@ -12,7 +12,7 @@
     <title>MetaSync – Vorschau</title>
     <link rel="stylesheet" href="chrome://metasync/content/previewDialog.css" />
   </head>
-  <body style="background-color: #ffffff; color: #1a1a1a;">
+  <body style="background-color: #ffffff; color: #1a1a1a">
     <div id="metasync-preview-root" class="ms-root">
       <header class="ms-header">
         <div class="ms-title-row">
@@ -52,129 +52,150 @@
       <footer class="ms-footer">
         <div class="ms-nav">
           <span id="progress" class="ms-progress" hidden="hidden"></span>
-          <button id="btn-back" class="ms-btn ms-btn-nav" type="button" hidden="hidden"></button>
-          <button id="btn-next" class="ms-btn ms-btn-nav" type="button" hidden="hidden"></button>
+          <button
+            id="btn-back"
+            class="ms-btn ms-btn-nav"
+            type="button"
+            hidden="hidden"
+          ></button>
+          <button
+            id="btn-next"
+            class="ms-btn ms-btn-nav"
+            type="button"
+            hidden="hidden"
+          ></button>
         </div>
         <div class="ms-actions">
-          <button id="btn-apply-selected" class="ms-btn ms-btn-primary" type="button"></button>
+          <button
+            id="btn-apply-selected"
+            class="ms-btn ms-btn-primary"
+            type="button"
+          ></button>
           <button id="btn-apply-all" class="ms-btn" type="button"></button>
           <button id="btn-skip" class="ms-btn" type="button"></button>
           <button id="btn-cancel" class="ms-btn" type="button"></button>
-          <button id="btn-close" class="ms-btn ms-btn-primary" type="button" hidden="hidden"></button>
+          <button
+            id="btn-close"
+            class="ms-btn ms-btn-primary"
+            type="button"
+            hidden="hidden"
+          ></button>
         </div>
       </footer>
     </div>
 
-    <script type="application/javascript"><![CDATA[
-      (function () {
-        var io = window.arguments && window.arguments[0];
-        if (!io) return;
-        var inp = io.input || {};
-        var HTML = "http://www.w3.org/1999/xhtml";
-        io.result = { action: inp.noData ? "close" : "cancel", selectedKeys: [] };
+    <script type="application/javascript">
+      <![CDATA[
+            (function () {
+              var io = window.arguments && window.arguments[0];
+              if (!io) return;
+              var inp = io.input || {};
+              var HTML = "http://www.w3.org/1999/xhtml";
+              io.result = { action: inp.noData ? "close" : "cancel", selectedKeys: [] };
 
-        function $(id) { return document.getElementById(id); }
-        function txt(id, v) { var e = $(id); if (e != null && v != null) e.textContent = v; }
-        function qsel(sel) { return document.querySelector(sel); }
-        function show(id, s) {
-          var e = $(id); if (!e) return;
-          if (s) e.removeAttribute("hidden"); else e.setAttribute("hidden", "hidden");
-        }
+              function $(id) { return document.getElementById(id); }
+              function txt(id, v) { var e = $(id); if (e != null && v != null) e.textContent = v; }
+              function qsel(sel) { return document.querySelector(sel); }
+              function show(id, s) {
+                var e = $(id); if (!e) return;
+                if (s) e.removeAttribute("hidden"); else e.setAttribute("hidden", "hidden");
+              }
 
-        // Kopfzeile
-        txt("type-icon", inp.typeIcon);
-        txt("item-title", inp.itemTitle);
-        var sl = qsel(".ms-source-label"); if (sl) sl.textContent = inp.sourceLabel || "";
-        txt("source-name", inp.sourceName);
-        var ql = qsel(".ms-quality-label"); if (ql) ql.textContent = inp.qualityLabel || "";
-        var q = $("quality");
-        if (q) { q.textContent = inp.qualityText || ""; q.setAttribute("data-quality", inp.quality || ""); }
-        txt("warning", inp.warningText); show("warning", !!inp.warningShow);
-        txt("col-field", inp.colField); txt("col-current", inp.colCurrent); txt("col-proposed", inp.colProposed);
+              // Kopfzeile
+              txt("type-icon", inp.typeIcon);
+              txt("item-title", inp.itemTitle);
+              var sl = qsel(".ms-source-label"); if (sl) sl.textContent = inp.sourceLabel || "";
+              txt("source-name", inp.sourceName);
+              var ql = qsel(".ms-quality-label"); if (ql) ql.textContent = inp.qualityLabel || "";
+              var q = $("quality");
+              if (q) { q.textContent = inp.qualityText || ""; q.setAttribute("data-quality", inp.quality || ""); }
+              txt("warning", inp.warningText); show("warning", !!inp.warningShow);
+              txt("col-field", inp.colField); txt("col-current", inp.colCurrent); txt("col-proposed", inp.colProposed);
 
-        // Button-Beschriftungen
-        txt("btn-apply-all", inp.labelApplyAll);
-        txt("btn-apply-selected", inp.labelApplySelected);
-        txt("btn-skip", inp.labelSkip);
-        txt("btn-cancel", inp.labelCancel);
-        txt("btn-close", inp.labelClose);
-        var ca = $("check-all"); if (ca && inp.selectAllTitle) ca.setAttribute("title", inp.selectAllTitle);
+              // Button-Beschriftungen
+              txt("btn-apply-all", inp.labelApplyAll);
+              txt("btn-apply-selected", inp.labelApplySelected);
+              txt("btn-skip", inp.labelSkip);
+              txt("btn-cancel", inp.labelCancel);
+              txt("btn-close", inp.labelClose);
+              var ca = $("check-all"); if (ca && inp.selectAllTitle) ca.setAttribute("title", inp.selectAllTitle);
 
-        // Tabelle / No-Data
-        function cell(cls, val) {
-          var td = document.createElementNS(HTML, "td");
-          td.setAttribute("class", cls); td.textContent = val || ""; return td;
-        }
-        if (inp.noData) {
-          show("diff-container", false); show("no-results", true);
-          txt("no-results-text", inp.noDataText);
-        } else {
-          var body = $("diff-body");
-          if (body) {
-            while (body.firstChild) body.removeChild(body.firstChild);
-            (inp.rows || []).forEach(function (r) {
-              var tr = document.createElementNS(HTML, "tr");
-              tr.setAttribute("class", "ms-row " + (r.status === "correction" ? "ms-correction" : "ms-addition"));
-              var tdC = document.createElementNS(HTML, "td"); tdC.setAttribute("class", "ms-col-check");
-              var cb = document.createElementNS(HTML, "input");
-              cb.setAttribute("type", "checkbox"); cb.setAttribute("data-key", r.key);
-              tdC.appendChild(cb); tr.appendChild(tdC);
-              tr.appendChild(cell("ms-col-field", r.label));
-              tr.appendChild(cell("ms-col-current ms-current", r.current));
-              tr.appendChild(cell("ms-col-proposed" + (r.status === "correction" ? " ms-proposed-strong" : ""), r.proposed));
-              body.appendChild(tr);
-            });
-            if (!(inp.rows && inp.rows.length)) {
-              show("diff-container", false); show("no-results", true);
-              txt("no-results-text", inp.emptyText);
-            }
-          }
-        }
+              // Tabelle / No-Data
+              function cell(cls, val) {
+                var td = document.createElementNS(HTML, "td");
+                td.setAttribute("class", cls); td.textContent = val || ""; return td;
+              }
+              if (inp.noData) {
+                show("diff-container", false); show("no-results", true);
+                txt("no-results-text", inp.noDataText);
+              } else {
+                var body = $("diff-body");
+                if (body) {
+                  while (body.firstChild) body.removeChild(body.firstChild);
+                  (inp.rows || []).forEach(function (r) {
+                    var tr = document.createElementNS(HTML, "tr");
+                    tr.setAttribute("class", "ms-row " + (r.status === "correction" ? "ms-correction" : "ms-addition"));
+                    var tdC = document.createElementNS(HTML, "td"); tdC.setAttribute("class", "ms-col-check");
+                    var cb = document.createElementNS(HTML, "input");
+                    cb.setAttribute("type", "checkbox"); cb.setAttribute("data-key", r.key);
+                    tdC.appendChild(cb); tr.appendChild(tdC);
+                    tr.appendChild(cell("ms-col-field", r.label));
+                    tr.appendChild(cell("ms-col-current ms-current", r.current));
+                    tr.appendChild(cell("ms-col-proposed" + (r.status === "correction" ? " ms-proposed-strong" : ""), r.proposed));
+                    body.appendChild(tr);
+                  });
+                  if (!(inp.rows && inp.rows.length)) {
+                    show("diff-container", false); show("no-results", true);
+                    txt("no-results-text", inp.emptyText);
+                  }
+                }
+              }
 
-        // Navigation
-        show("progress", !!inp.showNav); show("btn-back", !!inp.showNav); show("btn-next", !!inp.showNav);
-        if (inp.showNav) {
-          txt("progress", inp.progressText);
-          var bb = $("btn-back"); if (bb) { bb.textContent = inp.backText; bb.disabled = !!inp.backDisabled; }
-          var bn = $("btn-next"); if (bn) { bn.textContent = inp.nextText; bn.disabled = !!inp.nextDisabled; }
-        }
+              // Navigation
+              show("progress", !!inp.showNav); show("btn-back", !!inp.showNav); show("btn-next", !!inp.showNav);
+              if (inp.showNav) {
+                txt("progress", inp.progressText);
+                var bb = $("btn-back"); if (bb) { bb.textContent = inp.backText; bb.disabled = !!inp.backDisabled; }
+                var bn = $("btn-next"); if (bn) { bn.textContent = inp.nextText; bn.disabled = !!inp.nextDisabled; }
+              }
 
-        // Button-Sichtbarkeit im No-Data-Modus
-        show("btn-apply-all", !inp.noData); show("btn-apply-selected", !inp.noData);
-        show("btn-skip", !inp.noData); show("btn-cancel", !inp.noData); show("btn-close", !!inp.noData);
+              // Button-Sichtbarkeit im No-Data-Modus
+              show("btn-apply-all", !inp.noData); show("btn-apply-selected", !inp.noData);
+              show("btn-skip", !inp.noData); show("btn-cancel", !inp.noData); show("btn-close", !!inp.noData);
 
-        // Auswahl-Helfer
-        function rowBoxes() {
-          return Array.prototype.slice.call(document.querySelectorAll('#diff-body input[type="checkbox"]'));
-        }
-        if (ca) {
-          ca.addEventListener("change", function () {
-            rowBoxes().forEach(function (b) { b.checked = ca.checked; });
-          });
-          var bodyEl = $("diff-body");
-          if (bodyEl) bodyEl.addEventListener("change", function () {
-            var bs = rowBoxes(); var c = bs.filter(function (b) { return b.checked; }).length;
-            ca.checked = c === bs.length && bs.length > 0;
-            ca.indeterminate = c > 0 && c < bs.length;
-          });
-        }
+              // Auswahl-Helfer
+              function rowBoxes() {
+                return Array.prototype.slice.call(document.querySelectorAll('#diff-body input[type="checkbox"]'));
+              }
+              if (ca) {
+                ca.addEventListener("change", function () {
+                  rowBoxes().forEach(function (b) { b.checked = ca.checked; });
+                });
+                var bodyEl = $("diff-body");
+                if (bodyEl) bodyEl.addEventListener("change", function () {
+                  var bs = rowBoxes(); var c = bs.filter(function (b) { return b.checked; }).length;
+                  ca.checked = c === bs.length && bs.length > 0;
+                  ca.indeterminate = c > 0 && c < bs.length;
+                });
+              }
 
-        // Aktionen
-        function done(action, keys) { io.result = { action: action, selectedKeys: keys || [] }; window.close(); }
-        function on(id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); }
-        on("btn-apply-all", function () { done("applyAll"); });
-        on("btn-apply-selected", function () {
-          var keys = rowBoxes().filter(function (b) { return b.checked; })
-            .map(function (b) { return b.getAttribute("data-key"); })
-            .filter(Boolean);
-          done("applySelected", keys);
-        });
-        on("btn-skip", function () { done("skip"); });
-        on("btn-cancel", function () { done("cancel"); });
-        on("btn-close", function () { done("close"); });
-        on("btn-back", function () { done("back"); });
-        on("btn-next", function () { done("next"); });
-      })();
-    ]]></script>
+              // Aktionen
+              function done(action, keys) { io.result = { action: action, selectedKeys: keys || [] }; window.close(); }
+              function on(id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); }
+              on("btn-apply-all", function () { done("applyAll"); });
+              on("btn-apply-selected", function () {
+                var keys = rowBoxes().filter(function (b) { return b.checked; })
+                  .map(function (b) { return b.getAttribute("data-key"); })
+                  .filter(Boolean);
+                done("applySelected", keys);
+              });
+              on("btn-skip", function () { done("skip"); });
+              on("btn-cancel", function () { done("cancel"); });
+              on("btn-close", function () { done("close"); });
+              on("btn-back", function () { done("back"); });
+              on("btn-next", function () { done("next"); });
+            })();
+          ]]>
+    </script>
   </body>
 </html>
