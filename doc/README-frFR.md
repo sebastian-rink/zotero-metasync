@@ -412,4 +412,4 @@ Cette section montre la structure des répertoires d'un modèle.
 
 Utilisez ce code sous AGPL. Aucune garantie n'est fournie. Gardez à l'esprit les lois de votre pays !
 
-Si vous souhaitez modifier la licence, veuillez me contacter à l'adresse suivante : <wyzlshx@foxmail.com>
+Si vous souhaitez modifier la licence, veuillez me contacter à l'adresse suivante : <mail@sebastianrink.de>
