@@ -1,0 +1,188 @@
+/* MetaSync – Trefferauswahl-Dialog */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: #2b2a33;
+    color: #f0f0f4;
+  }
+}
+
+.ms-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font: menu;
+  gap: 10px;
+}
+
+.ms-header {
+  flex: 0 0 auto;
+}
+
+.ms-heading {
+  margin: 0 0 6px;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+.ms-searched {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--fill-secondary, #555);
+}
+
+.ms-searched-label {
+  font-weight: 600;
+  margin-inline-end: 4px;
+}
+
+.ms-searched-title {
+  font-style: italic;
+}
+
+/* Trefferliste */
+.ms-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  border: 1px solid var(--fill-quinary, #ddd);
+  border-radius: 5px;
+  padding: 4px;
+  background: var(--material-background, #fff);
+}
+
+.ms-candidate {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ms-candidate:hover {
+  background: var(--fill-quinary, #f2f2f2);
+}
+
+.ms-radio {
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+
+.ms-candidate-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ms-candidate-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.ms-c-title {
+  font-weight: 600;
+}
+
+.ms-c-sep {
+  color: var(--fill-tertiary, #aaa);
+}
+
+.ms-c-authors,
+.ms-c-year,
+.ms-c-publisher {
+  color: var(--fill-secondary, #555);
+}
+
+.ms-candidate-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85em;
+  color: var(--fill-secondary, #666);
+}
+
+.ms-c-source {
+  margin-inline-end: 6px;
+  font-style: italic;
+}
+
+/* Übereinstimmungsbalken */
+.ms-bar {
+  display: inline-block;
+  width: 80px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--fill-quinary, #e3e3e3);
+  overflow: hidden;
+}
+
+.ms-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent-blue, #2e7dd1);
+  border-radius: 4px;
+}
+
+.ms-bar-fill[data-quality="low"] {
+  background: var(--accent-red, #d14b3d);
+}
+
+.ms-bar-fill[data-quality="medium"] {
+  background: var(--accent-orange, #e0922f);
+}
+
+.ms-c-match-pct {
+  min-width: 38px;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fußzeile */
+.ms-footer {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ms-btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--fill-quarternary, #c4c4c4);
+  background: var(--material-button, #f6f6f6);
+  cursor: pointer;
+}
+
+.ms-btn:hover {
+  background: var(--fill-quinary, #ececec);
+}
+
+.ms-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ms-btn-primary {
+  border-color: var(--accent-blue, #2e7dd1);
+  background: var(--accent-blue, #2e7dd1);
+  color: #fff;
+}
+
+.ms-btn-primary:hover {
+  background: var(--accent-blue90, #2a70bb);
+}

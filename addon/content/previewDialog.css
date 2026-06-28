@@ -1,0 +1,219 @@
+/* MetaSync – Vorschau-Dialog */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: #2b2a33;
+    color: #f0f0f4;
+  }
+}
+
+.ms-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font: menu;
+  gap: 10px;
+}
+
+.ms-header {
+  flex: 0 0 auto;
+}
+
+.ms-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ms-type-icon {
+  font-size: 1.1em;
+}
+
+.ms-title {
+  margin: 0;
+  font-size: 1.05em;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-subline {
+  margin-top: 4px;
+  font-size: 0.88em;
+  color: var(--fill-secondary, #555);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ms-source-label,
+.ms-quality-label {
+  font-weight: 600;
+}
+
+.ms-sep {
+  color: var(--fill-tertiary, #aaa);
+}
+
+.ms-quality[data-quality="high"] {
+  color: var(--accent-green, #2a9d3c);
+}
+.ms-quality[data-quality="medium"] {
+  color: var(--accent-orange, #d2861f);
+}
+.ms-quality[data-quality="low"] {
+  color: var(--accent-red, #d14b3d);
+}
+
+.ms-warning {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: var(--accent-yellow10, #fdf3d8);
+  border: 1px solid var(--accent-orange, #e0922f);
+  color: var(--accent-orange-text, #8a5a12);
+  font-size: 0.86em;
+}
+
+/* Tabelle */
+.ms-table-wrap {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  border: 1px solid var(--fill-quinary, #ddd);
+  border-radius: 5px;
+}
+
+.ms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.ms-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--material-toolbar, #f4f4f4);
+  text-align: start;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--fill-quinary, #ddd);
+  font-weight: 600;
+}
+
+.ms-col-check {
+  width: 28px;
+  text-align: center;
+}
+
+.ms-col-field {
+  width: 22%;
+  font-weight: 600;
+}
+
+.ms-col-current {
+  width: 34%;
+}
+
+.ms-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--fill-quinary, #efefef);
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.ms-current {
+  color: var(--fill-tertiary, #888);
+}
+
+/* Ergänzung vs. Korrektur */
+.ms-addition .ms-col-proposed {
+  font-weight: normal;
+}
+
+.ms-correction {
+  background: var(--accent-yellow05, #fcf6e4);
+}
+
+.ms-proposed-strong,
+.ms-correction .ms-col-proposed {
+  font-weight: 700;
+}
+
+/* Fußzeile */
+.ms-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ms-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86em;
+  color: var(--fill-secondary, #555);
+}
+
+.ms-progress {
+  margin-inline-end: 4px;
+}
+
+.ms-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ms-btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--fill-quarternary, #c4c4c4);
+  background: var(--material-button, #f6f6f6);
+  cursor: pointer;
+}
+
+.ms-btn:hover {
+  background: var(--fill-quinary, #ececec);
+}
+
+.ms-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ms-btn-nav {
+  padding: 4px 10px;
+}
+
+.ms-btn-primary {
+  border-color: var(--accent-blue, #2e7dd1);
+  background: var(--accent-blue, #2e7dd1);
+  color: #fff;
+}
+
+.ms-btn-primary:hover {
+  background: var(--accent-blue90, #2a70bb);
+}
+
+/* „keine Metadaten" */
+.ms-no-results {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--fill-secondary, #555);
+}

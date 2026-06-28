@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MetaSync – Trefferauswahl-Dialog.
+  Daten via window.arguments[0] (io.input); das Inline-Skript rendert und
+  verdrahtet selbst und schreibt die Auswahl nach io.result. Der Controller
+  src/modules/candidateDialog.ts öffnet modal und liest io.result.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MetaSync – Treffer auswählen</title>
+    <link rel="stylesheet" href="chrome://metasync/content/candidateDialog.css" />
+  </head>
+  <body style="background-color: #ffffff; color: #1a1a1a;">
+    <div id="metasync-candidate-root" class="ms-root">
+      <header class="ms-header">
+        <h1 id="heading" class="ms-heading"></h1>
+        <p id="searched" class="ms-searched">
+          <span class="ms-searched-label"></span>
+          <span id="searched-title" class="ms-searched-title"></span>
+        </p>
+      </header>
+
+      <div id="candidate-list" class="ms-list" role="radiogroup"></div>
+
+      <footer class="ms-footer">
+        <button id="btn-use" class="ms-btn ms-btn-primary" type="button"></button>
+        <button id="btn-skip" class="ms-btn" type="button"></button>
+        <button id="btn-cancel" class="ms-btn" type="button"></button>
+      </footer>
+    </div>
+
+    <script type="application/javascript"><![CDATA[
+      (function () {
+        var io = window.arguments && window.arguments[0];
+        if (!io) return;
+        var inp = io.input || {};
+        var HTML = "http://www.w3.org/1999/xhtml";
+        io.result = { action: "cancel", index: 0 };
+
+        function $(id) { return document.getElementById(id); }
+        function txt(id, v) { var e = $(id); if (e != null && v != null) e.textContent = v; }
+
+        txt("heading", inp.heading);
+        var sl = document.querySelector(".ms-searched-label");
+        if (sl) sl.textContent = inp.searchedLabel || "";
+        txt("searched-title", inp.searchedTitle);
+        txt("btn-use", inp.useLabel);
+        txt("btn-skip", inp.skipLabel);
+        txt("btn-cancel", inp.cancelLabel);
+
+        function el(tag, cls, text) {
+          var e = document.createElementNS(HTML, tag);
+          if (cls) e.setAttribute("class", cls);
+          if (text != null) e.textContent = text;
+          return e;
+        }
+
+        var list = $("candidate-list");
+        (inp.candidates || []).forEach(function (c, i) {
+          var label = el("label", "ms-candidate");
+          var radio = document.createElementNS(HTML, "input");
+          radio.setAttribute("type", "radio");
+          radio.setAttribute("name", "candidate");
+          radio.setAttribute("value", String(i));
+          radio.setAttribute("class", "ms-radio");
+          if (i === 0) radio.setAttribute("checked", "checked");
+          label.appendChild(radio);
+
+          var bodyEl = el("div", "ms-candidate-body");
+          var line = el("div", "ms-candidate-line");
+          var parts = [
+            ["ms-c-title", c.title],
+            ["ms-c-authors", c.authors],
+            ["ms-c-year", c.year],
+            ["ms-c-publisher", c.publisher]
+          ].filter(function (p) { return p[1]; });
+          parts.forEach(function (p, idx) {
+            if (idx > 0) line.appendChild(el("span", "ms-c-sep", "—"));
+            line.appendChild(el("span", p[0], p[1]));
+          });
+          bodyEl.appendChild(line);
+
+          var meta = el("div", "ms-candidate-meta");
+          meta.appendChild(el("span", "ms-c-source", (inp.sourceLabel || "") + " " + (c.sourceName || "")));
+          meta.appendChild(el("span", "ms-c-match-label", inp.matchLabel));
+          var bar = el("span", "ms-bar");
+          var fill = el("span", "ms-bar-fill");
+          fill.setAttribute("style", "width: " + (c.pct || 0) + "%;");
+          fill.setAttribute("data-quality", c.quality || "");
+          bar.appendChild(fill);
+          meta.appendChild(bar);
+          meta.appendChild(el("span", "ms-c-match-pct", (c.pct || 0) + " %"));
+          bodyEl.appendChild(meta);
+
+          label.appendChild(bodyEl);
+          if (list) list.appendChild(label);
+        });
+
+        function done(action, index) { io.result = { action: action, index: index || 0 }; window.close(); }
+        function on(id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); }
+        on("btn-use", function () {
+          var checked = document.querySelector('input[name="candidate"]:checked');
+          done("use", checked ? Number(checked.value) : 0);
+        });
+        on("btn-skip", function () { done("skip"); });
+        on("btn-cancel", function () { done("cancel"); });
+      })();
+    ]]></script>
+  </body>
+</html>
