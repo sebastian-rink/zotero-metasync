@@ -12,6 +12,7 @@
 
 import {
   fetchFromCrossref,
+  fetchFromCrossrefSearch,
   fetchFromDNB,
   fetchFromDNBByISBN,
   fetchFromGoogleBooks,
@@ -34,6 +35,7 @@ import { getString } from "../utils/locale";
 /** Anzeigenamen der Quellen für die Dialoge. */
 const SOURCE_NAMES: Record<ApiSource, string> = {
   crossref: "Crossref",
+  crossrefSearch: "Web-Suche (Crossref)",
   openLibrary: "Open Library",
   googleBooks: "Google Books",
   dnb: "DNB",
@@ -129,6 +131,8 @@ function sourceEnabled(source: ApiSource): boolean {
   switch (source) {
     case "crossref":
       return Boolean(getPref("source.crossref"));
+    case "crossrefSearch":
+      return Boolean(getPref("source.crossrefSearch"));
     case "openLibrary":
       return Boolean(getPref("source.openLibrary"));
     case "googleBooks":
@@ -143,6 +147,26 @@ function sourceEnabled(source: ApiSource): boolean {
 // ---------------------------------------------------------------------------
 // Lookup-Strategie je Eintragstyp
 // ---------------------------------------------------------------------------
+
+/**
+ * Ergänzt die allgemeine Crossref-Freitextsuche als zusätzlichen, parallel
+ * vorschlagenden Kandidaten. Wird in allen Eintragstypen genutzt.
+ *
+ * Übersprungen, wenn bereits ein DOI-basierter Crossref-Treffer vorliegt – die
+ * Freitextsuche im selben Bestand wäre dann redundant.
+ */
+async function appendCrossrefSearch(
+  item: Zotero.Item,
+  results: RawMetadata[],
+): Promise<void> {
+  if (!sourceEnabled("crossrefSearch")) return;
+  if (results.some((r) => r.source === "crossref")) return;
+  const r = await fetchFromCrossrefSearch(
+    field(item, "title"),
+    firstAuthorLastName(item),
+  );
+  if (r) results.push(r);
+}
 
 /** Sammelt Ergebnisse für eine Monographie. */
 async function lookupBook(item: Zotero.Item): Promise<RawMetadata[]> {
@@ -185,6 +209,7 @@ async function lookupBook(item: Zotero.Item): Promise<RawMetadata[]> {
     if (r) results.push(r);
   }
 
+  await appendCrossrefSearch(item, results);
   return results;
 }
 
@@ -203,6 +228,7 @@ async function lookupJournalArticle(item: Zotero.Item): Promise<RawMetadata[]> {
     if (r) results.push(r);
   }
 
+  await appendCrossrefSearch(item, results);
   return results;
 }
 
@@ -231,6 +257,7 @@ async function lookupBookSection(item: Zotero.Item): Promise<RawMetadata[]> {
     if (r) results.push(r);
   }
 
+  await appendCrossrefSearch(item, results);
   return results;
 }
 

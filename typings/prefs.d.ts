@@ -9,6 +9,7 @@ declare namespace _ZoteroTypes {
     PluginPrefsMap: {
       "googleApiKey": string;
       "source.crossref": boolean;
+      "source.crossrefSearch": boolean;
       "source.openLibrary": boolean;
       "source.googleBooks": boolean;
       "source.dnb": boolean;

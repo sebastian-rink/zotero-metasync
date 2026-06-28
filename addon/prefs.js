@@ -6,6 +6,7 @@ pref("googleApiKey", "");
 
 // Aktivierte Quellen.
 pref("source.crossref", true);
+pref("source.crossrefSearch", true);
 pref("source.openLibrary", true);
 pref("source.googleBooks", true);
 pref("source.dnb", true);

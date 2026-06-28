@@ -18,6 +18,7 @@
 /** Kennung der Quelle, aus der ein {@link RawMetadata}-Datensatz stammt. */
 export type ApiSource =
   | "crossref"
+  | "crossrefSearch"
   | "openLibrary"
   | "googleBooks"
   | "dnb"
@@ -221,9 +222,16 @@ interface CrossrefWork {
   "published-online"?: CrossrefDate;
 }
 
-/** Hülle der Crossref-Einzelwerk-Antwort. */
+/** Hülle der Crossref-Einzelwerk-Antwort (DOI-Lookup). */
 interface CrossrefResponse {
   message?: CrossrefWork;
+}
+
+/** Hülle der Crossref-Trefferlisten-Antwort (Freitextsuche). */
+interface CrossrefSearchResponse {
+  message?: {
+    items?: CrossrefWork[];
+  };
 }
 
 /** Wandelt Crossrefs `date-parts` in einen Datumsstring (YYYY[-MM[-DD]]) um. */
@@ -257,25 +265,18 @@ function crossrefCreators(
 }
 
 /**
- * Fragt Crossref für eine DOI ab und liefert normalisierte Metadaten.
+ * Wandelt ein Crossref-Werk in normalisierte {@link RawMetadata}. Wird sowohl
+ * vom DOI-Lookup als auch von der Freitextsuche genutzt; die Quelle wird vom
+ * Aufrufer übergeben, da sie sich in der Trefferqualität/Anzeige unterscheidet.
  *
- * @param doi DOI des Werks (ohne URL-Präfix).
- * @returns Metadaten oder `null`, falls kein Treffer/Fehler.
+ * @param work Einzelnes Crossref-Werk.
+ * @param source Quelle, der dieser Datensatz zugeordnet werden soll.
+ * @returns Metadaten oder `null`, falls der Treffer keinen Titel besitzt.
  */
-export async function fetchFromCrossref(
-  doi: string,
-): Promise<RawMetadata | null> {
-  const trimmed = clean(doi);
-  if (!trimmed) return null;
-
-  const url = `https://api.crossref.org/works/${encodeURIComponent(trimmed)}?mailto=mail@sebastianrink.de`;
-  const text = await httpGet(url);
-  if (!text) return null;
-
-  const json = parseJson<CrossrefResponse>(text, "Crossref");
-  const work = json?.message;
-  if (!work) return null;
-
+function mapCrossrefWork(
+  work: CrossrefWork,
+  source: ApiSource,
+): RawMetadata | null {
   const title = clean(first(work.title));
   if (!title) {
     Zotero.debug("[MetaSync] Crossref: Treffer ohne Titel verworfen.");
@@ -288,7 +289,7 @@ export async function fetchFromCrossref(
   ];
 
   return {
-    source: "crossref",
+    source,
     title,
     subtitle: clean(first(work.subtitle)),
     shortTitle: clean(first(work["short-title"])),
@@ -316,6 +317,68 @@ export async function fetchFromCrossref(
     url: clean(work.URL),
     matchTitle: title,
   };
+}
+
+/**
+ * Fragt Crossref für eine DOI ab und liefert normalisierte Metadaten.
+ *
+ * @param doi DOI des Werks (ohne URL-Präfix).
+ * @returns Metadaten oder `null`, falls kein Treffer/Fehler.
+ */
+export async function fetchFromCrossref(
+  doi: string,
+): Promise<RawMetadata | null> {
+  const trimmed = clean(doi);
+  if (!trimmed) return null;
+
+  const url = `https://api.crossref.org/works/${encodeURIComponent(trimmed)}?mailto=mail@sebastianrink.de`;
+  const text = await httpGet(url);
+  if (!text) return null;
+
+  const json = parseJson<CrossrefResponse>(text, "Crossref");
+  const work = json?.message;
+  if (!work) return null;
+
+  return mapCrossrefWork(work, "crossref");
+}
+
+/**
+ * Durchsucht den gesamten Crossref-Bestand per Freitext (Titel + optional
+ * Autor) und liefert den relevantesten Treffer normalisiert zurück. Dient als
+ * allgemeine „Websuche" für Werke ohne (passenden) Identifikator-Treffer.
+ *
+ * Crossref sortiert die `query.bibliographic`-Ergebnisse standardmäßig nach
+ * Relevanz; es wird daher der erste Treffer verwendet. Die endgültige
+ * Ähnlichkeitsbewertung erfolgt im Aufrufer.
+ *
+ * @param title Titel des Werks.
+ * @param author Nachname des ersten Autors (optional zur Eingrenzung).
+ * @returns Metadaten des besten Treffers oder `null`.
+ */
+export async function fetchFromCrossrefSearch(
+  title: string,
+  author: string,
+): Promise<RawMetadata | null> {
+  const t = clean(title);
+  if (!t) return null;
+  const a = clean(author);
+
+  const params = [
+    `query.bibliographic=${encodeURIComponent(t)}`,
+    "rows=5",
+    "mailto=mail@sebastianrink.de",
+  ];
+  if (a) params.push(`query.author=${encodeURIComponent(a)}`);
+
+  const url = `https://api.crossref.org/works?${params.join("&")}`;
+  const text = await httpGet(url);
+  if (!text) return null;
+
+  const json = parseJson<CrossrefSearchResponse>(text, "Crossref-Suche");
+  const work = first(json?.message?.items);
+  if (!work) return null;
+
+  return mapCrossrefWork(work, "crossrefSearch");
 }
 
 // ---------------------------------------------------------------------------
